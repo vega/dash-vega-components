@@ -2,7 +2,7 @@ import altair as alt
 from dash import Dash, Input, Output, callback, dcc, html
 from vega_datasets import data
 
-import dash_vega_components
+from dash_vega_components import Vega
 
 app = Dash(__name__)
 
@@ -10,9 +10,7 @@ app.layout = html.Div(
     [
         html.H1("Altair Chart"),
         dcc.Dropdown(["USA", "Europe", "Japan"], "USA", id="origin-dropdown"),
-        dash_vega_components.Vega(
-            id="altair-chart", opt={"renderer": "svg", "actions": False}
-        ),
+        Vega(id="altair-chart", opt={"renderer": "svg", "actions": False}),
     ]
 )
 
