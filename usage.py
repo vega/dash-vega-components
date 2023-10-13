@@ -2,21 +2,21 @@ import altair as alt
 from dash import Dash, Input, Output, callback, html
 from vega_datasets import data
 
-from dash_vega_components import Vega
+import dash_vega_components as dvc
 
 app = Dash(__name__)
 
 app.layout = html.Div(
     [
         html.H1("Vega Chart", id="header1"),
-        Vega(id="vega-chart"),
+        dvc.Vega(id="vega-chart"),
         html.H1("Vega-Lite Chart"),
-        Vega(id="vega-lite-chart"),
+        dvc.Vega(id="vega-lite-chart"),
         html.H1("Altair Charts"),
         # Scale factor should not do anything here as renderer is not svg
-        Vega(id="altair-chart", opt={"actions": False}, svgRendererScaleFactor=2),
+        dvc.Vega(id="altair-chart", opt={"actions": False}, svgRendererScaleFactor=2),
         # Here it should work
-        Vega(
+        dvc.Vega(
             id="altair-chart-scaled",
             opt={"renderer": "svg"},
             svgRendererScaleFactor=1.3,

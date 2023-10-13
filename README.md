@@ -17,17 +17,20 @@ import altair as alt
 from dash import Dash, Input, Output, callback, dcc, html
 from vega_datasets import data
 
-from dash_vega_components import Vega
+import dash_vega_components as dvc
 
-app = Dash(__name__)
+# Passing a stylesheet is not required
+app = Dash(
+    __name__, external_stylesheets=["https://codepen.io/chriddyp/pen/bWLwgP.css"]
+)
 
 app.layout = html.Div(
     [
         html.H1("Altair Chart"),
-        dcc.Dropdown(["USA", "Europe", "Japan"], "USA", id="origin-dropdown"),
-        Vega(
-            id="altair-chart", opt={"renderer": "svg", "actions": False}
-        ),
+        dcc.Dropdown(["All", "USA", "Europe", "Japan"], "All", id="origin-dropdown"),
+        # Optionally, you can pass options to the Vega component.
+        # See https://github.com/vega/vega-embed#options for more details.
+        dvc.Vega(id="altair-chart", opt={"renderer": "svg", "actions": False}),
     ]
 )
 
@@ -36,7 +39,8 @@ app.layout = html.Div(
 def display_altair_chart(origin):
     source = data.cars()
 
-    source = source[source["Origin"] == origin]
+    if origin != "All":
+        source = source[source["Origin"] == origin]
 
     chart = (
         alt.Chart(source)
@@ -44,7 +48,7 @@ def display_altair_chart(origin):
         .encode(
             x="Horsepower",
             y="Miles_per_Gallon",
-            color="Origin",
+            color=alt.Color("Origin").scale(domain=["Europe", "Japan", "USA"]),
             tooltip=["Name", "Origin", "Horsepower", "Miles_per_Gallon"],
         )
         .interactive()
@@ -53,7 +57,7 @@ def display_altair_chart(origin):
 
 
 if __name__ == "__main__":
-    app.run_server(debug=True)
+    app.run(debug=True)
 ```
 
 You can also pass a Vega or Vega-Lite specification as a dictionary.
