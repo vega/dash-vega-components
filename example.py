@@ -1,17 +1,3 @@
-# Dash Vega Components
-
-## Installation
-```bash
-pip install dash-vega-components
-```
-
-For the example below, you'll also need:
-```bash
-pip install altair vega_datasets
-```
-
-## Altair example
-```python
 import altair as alt
 from dash import Dash, Input, Output, callback, dcc, html
 from vega_datasets import data
@@ -53,26 +39,3 @@ def display_altair_chart(origin):
 
 if __name__ == "__main__":
     app.run_server(debug=True)
-```
-
-You can also pass a Vega or Vega-Lite specification as a dictionary.
-
-
-## Development
-Requires npm
-```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-pip install -r requirements-dev.txt
-
-npm install
-npm run build
-# Test package with
-python usage.py
-```
-Visit http://localhost:8050 in your web browser
-
-To cut a new release, see [RELEASING.md](./RELEASING.md)
-
-This package is based on the [dash-component-boilerplate template](https://github.com/plotly/dash-component-boilerplate).

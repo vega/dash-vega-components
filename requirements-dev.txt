@@ -2,3 +2,8 @@ build
 wheel
 twine
 black
+
+# For testing
+dash[dev,testing]>=1.15.0
+altair
+vega_datasets
