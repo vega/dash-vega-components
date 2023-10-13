@@ -59,6 +59,8 @@ def display_altair_chart(origin):
 if __name__ == "__main__":
     app.run(debug=True)
 ```
+![Example](https://raw.githubusercontent.com/binste/dash-vega-components/main/dvc_example.gif)
+
 
 You can also pass a Vega or Vega-Lite specification as a dictionary.
 
