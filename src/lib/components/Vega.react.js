@@ -29,6 +29,14 @@ Vega.propTypes = {
     opt: PropTypes.object,
 
     /**
+     * A number which is used to scale the chart in case the svg renderer is used.
+     * This is useful when you want to increase the size of the chart keeping
+     * the relative proportions of all chart elements to each other the same.
+     * Default value is 1.
+     */
+    svgRendererScaleFactor: PropTypes.number,
+
+    /**
      * Dash-assigned callback that should be called to report property changes
      * to Dash, to make them available for callbacks.
      */

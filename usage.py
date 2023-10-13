@@ -2,19 +2,24 @@ import altair as alt
 from dash import Dash, Input, Output, callback, html
 from vega_datasets import data
 
-import dash_vega_components
+from dash_vega_components import Vega
 
 app = Dash(__name__)
 
 app.layout = html.Div(
     [
         html.H1("Vega Chart", id="header1"),
-        dash_vega_components.Vega(id="vega-chart"),
+        Vega(id="vega-chart"),
         html.H1("Vega-Lite Chart"),
-        dash_vega_components.Vega(id="vega-lite-chart"),
-        html.H1("Altair Chart"),
-        dash_vega_components.Vega(
-            id="altair-chart", opt={"renderer": "svg", "actions": False}
+        Vega(id="vega-lite-chart"),
+        html.H1("Altair Charts"),
+        # Scale factor should not do anything here as renderer is not svg
+        Vega(id="altair-chart", opt={"actions": False}, svgRendererScaleFactor=2),
+        # Here it should work
+        Vega(
+            id="altair-chart-scaled",
+            opt={"renderer": "svg"},
+            svgRendererScaleFactor=1.3,
         ),
     ]
 )
@@ -135,7 +140,11 @@ def display_vega_chart(_):
     }
 
 
-@callback(Output("altair-chart", "spec"), Input("header1", "children"))
+@callback(
+    Output("altair-chart", "spec"),
+    Output("altair-chart-scaled", "spec"),
+    Input("header1", "children"),
+)
 def display_altair_chart(_):
     source = data.cars()
 
@@ -150,7 +159,8 @@ def display_altair_chart(_):
         )
         .interactive()
     )
-    return chart.to_dict()
+    spec = chart.to_dict()
+    return spec, spec
 
 
 if __name__ == "__main__":

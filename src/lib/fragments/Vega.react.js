@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
 import vegaEmbed, { EmbedOptions } from 'vega-embed';
+import * as d3 from 'd3';
 
 
 export default class Vega extends Component {
@@ -27,7 +28,19 @@ export default class Vega extends Component {
 
     update() {
         if (!this.props.spec) { return; }
-        vegaEmbed(this.el, this.props.spec, this.props.opt)
+        vegaEmbed(this.el, this.props.spec, this.props.opt).then(() => {
+            const options = this.props.opt || {};
+            const renderer = options.renderer || 'canvas';
+            if (renderer === 'svg' && this.props.svgRendererScaleFactor !== 1) {
+                // Adjustment of width and height is based on https://github.com/vega/vega-lite/issues/1758#issuecomment-264677556
+                const svg = d3.select("#" + this.divId + " svg");
+                const scaleFactor = this.props.svgRendererScaleFactor;
+                const w = svg.attr("width");
+                const h = svg.attr("height");
+                svg.attr("width", w * scaleFactor);
+                svg.attr("height", h * scaleFactor);
+            }
+        })
     }
 
     render() {
@@ -35,7 +48,7 @@ export default class Vega extends Component {
     }
 }
 
-Vega.defaultProps = {};
+Vega.defaultProps = { svgRendererScaleFactor: 1 };
 
 Vega.propTypes = {
     /**
@@ -52,6 +65,14 @@ Vega.propTypes = {
      * Vega-Embed options
      */
     opt: PropTypes.object,
+
+    /**
+     * A number which is used to scale the chart in case the svg renderer is used.
+     * This is useful when you want to increase the size of the chart keeping
+     * the relative proportions of all chart elements to each other the same.
+     * Default value is 1.
+     */
+    svgRendererScaleFactor: PropTypes.number,
 
     /**
      * Dash-assigned callback that should be called to report property changes
