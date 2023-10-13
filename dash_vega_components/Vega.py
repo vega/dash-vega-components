@@ -5,7 +5,7 @@ from dash.development.base_component import Component, _explicitize_args
 
 class Vega(Component):
     """A Vega component.
-
+You can use this component to display Altair charts or Vega-Lite/Vega specifications in your Dash app.
 
 Keyword arguments:
 
@@ -13,10 +13,12 @@ Keyword arguments:
     The ID used to identify this component in Dash callbacks.
 
 - opt (dict; optional):
-    Vega-Embed options.
+    Vega-Embed options. See https://github.com/vega/vega-embed#options
+    for more details.
 
 - spec (dict; optional):
-    A Vega or Vega-Lite spec.
+    A Vega or Vega-Lite spec. To pass an Altair chart, use
+    chart.to_dict().
 
 - svgRendererScaleFactor (number; optional):
     A number which is used to scale the chart in case the svg renderer

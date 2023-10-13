@@ -2,6 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Vega as RealComponent } from '../LazyLoader';
 
+/**
+ * You can use this component to display Altair charts or Vega-Lite/Vega specifications in your Dash app.
+ */
 const Vega = (props) => {
     return (
         <React.Suspense fallback={null}>
@@ -19,12 +22,12 @@ Vega.propTypes = {
     id: PropTypes.string,
 
     /**
-     * A Vega or Vega-Lite spec
+     * A Vega or Vega-Lite spec. To pass an Altair chart, use chart.to_dict().
      */
     spec: PropTypes.object,
 
     /**
-     * Vega-Embed options
+     * Vega-Embed options. See https://github.com/vega/vega-embed#options for more details.
      */
     opt: PropTypes.object,
 

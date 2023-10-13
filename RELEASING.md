@@ -8,24 +8,24 @@
 
 3. Make sure that proptypes in `fragments/Vega.react.js` and `components/Vega.react.js` are in sync
 
-4. Commit change and push:
-
-        git add . -u
-        git commit -m "MAINT: Bump version to 0.2.0"
-        git push
-
-5. Merge release branch into main, make sure that all required checks pass
-
-6. On main, build new version and test it
-
-        git checkout main
-        git pull
+4. Build new version and test it
         npm install
         npm run build
 
         python usage.py
 
-7. Build source & wheel distributions:
+5. Commit changes and push:
+
+        git add . -u
+        git commit -m "MAINT: Bump version to 0.2.0"
+        git push
+
+6. Merge release branch into main, make sure that all required checks pass
+
+7. On main, build source & wheel distributions:
+
+        git checkout main
+        git pull
 
         rm -rf dist
         python setup.py sdist bdist_wheel

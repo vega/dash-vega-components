@@ -1,6 +1,6 @@
 {
   "src/lib/components/Vega.react.js": {
-    "description": "",
+    "description": "You can use this component to display Altair charts or Vega-Lite/Vega specifications in your Dash app.",
     "displayName": "Vega",
     "methods": [],
     "props": {
@@ -16,14 +16,14 @@
           "name": "object"
         },
         "required": false,
-        "description": "A Vega or Vega-Lite spec"
+        "description": "A Vega or Vega-Lite spec. To pass an Altair chart, use chart.to_dict()."
       },
       "opt": {
         "type": {
           "name": "object"
         },
         "required": false,
-        "description": "Vega-Embed options"
+        "description": "Vega-Embed options. See https://github.com/vega/vega-embed#options for more details."
       },
       "svgRendererScaleFactor": {
         "type": {

@@ -57,12 +57,12 @@ Vega.propTypes = {
     id: PropTypes.string,
 
     /**
-     * A Vega or Vega-Lite spec
+     * A Vega or Vega-Lite spec. To pass an Altair chart, use chart.to_dict().
      */
     spec: PropTypes.object,
 
     /**
-     * Vega-Embed options
+     * Vega-Embed options. See https://github.com/vega/vega-embed#options for more details.
      */
     opt: PropTypes.object,
 

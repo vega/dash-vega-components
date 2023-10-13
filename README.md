@@ -1,6 +1,7 @@
 # Dash Vega Components
+With the `Vega` component, you can display [Vega-Altair](https://altair-viz.github.io/) charts in your [Plotly Dash](https://dash.plotly.com/) application. It also supports Vega-Lite and Vega specifications.
 
-## Installation
+
 ```bash
 pip install dash-vega-components
 ```
