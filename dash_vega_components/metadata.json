@@ -1,0 +1,37 @@
+{
+  "src/lib/components/Vega.react.js": {
+    "description": "",
+    "displayName": "Vega",
+    "methods": [],
+    "props": {
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The ID used to identify this component in Dash callbacks."
+      },
+      "spec": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "A Vega or Vega-Lite spec"
+      },
+      "opt": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "Vega-Embed options"
+      },
+      "setProps": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "Dash-assigned callback that should be called to report property changes\nto Dash, to make them available for callbacks."
+      }
+    }
+  }
+}
