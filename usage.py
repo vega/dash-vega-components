@@ -1,5 +1,5 @@
 import altair as alt
-from dash import Dash, Input, Output, callback, html
+from dash import Dash, Input, Output, callback, dcc, html
 from vega_datasets import data
 
 import dash_vega_components as dvc
@@ -13,6 +13,10 @@ app.layout = html.Div(
         html.H1("Vega-Lite Chart"),
         dvc.Vega(id="vega-lite-chart"),
         html.H1("Altair Charts"),
+        dcc.Dropdown(["All", "USA", "Europe", "Japan"], "All", id="origin-dropdown"),
+        dcc.Slider(
+            0.5, 2, step=0.25, value=1.25, id="svg-renderer-scale-factor-slider"
+        ),
         # Scale factor should not do anything here as renderer is not svg
         dvc.Vega(id="altair-chart", opt={"actions": False}, svgRendererScaleFactor=2),
         # Here it should work
@@ -23,6 +27,33 @@ app.layout = html.Div(
         ),
     ]
 )
+
+
+@callback(
+    Output("altair-chart", "spec"),
+    Output("altair-chart-scaled", "spec"),
+    Output("altair-chart-scaled", "svgRendererScaleFactor"),
+    Input("origin-dropdown", "value"),
+    Input("svg-renderer-scale-factor-slider", "value"),
+)
+def display_altair_chart(origin, svgRendererScaleFactor):
+    source = data.cars()
+
+    if origin != "All":
+        source = source[source["Origin"] == origin]
+
+    chart = (
+        alt.Chart(source)
+        .mark_circle(size=60)
+        .encode(
+            x="Horsepower",
+            y="Miles_per_Gallon",
+            color=alt.Color("Origin").scale(domain=["Europe", "Japan", "USA"]),
+            tooltip=["Name", "Origin", "Horsepower", "Miles_per_Gallon"],
+        )
+    )
+    spec = chart.to_dict()
+    return spec, spec, svgRendererScaleFactor
 
 
 @callback(Output("vega-lite-chart", "spec"), Input("header1", "children"))
@@ -138,29 +169,6 @@ def display_vega_chart(_):
             }
         ],
     }
-
-
-@callback(
-    Output("altair-chart", "spec"),
-    Output("altair-chart-scaled", "spec"),
-    Input("header1", "children"),
-)
-def display_altair_chart(_):
-    source = data.cars()
-
-    chart = (
-        alt.Chart(source)
-        .mark_circle(size=60)
-        .encode(
-            x="Horsepower",
-            y="Miles_per_Gallon",
-            color="Origin",
-            tooltip=["Name", "Origin", "Horsepower", "Miles_per_Gallon"],
-        )
-        .interactive()
-    )
-    spec = chart.to_dict()
-    return spec, spec
 
 
 if __name__ == "__main__":

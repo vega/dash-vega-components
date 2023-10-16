@@ -1,6 +1,6 @@
 {
   "name": "dash_vega_components",
-  "version": "0.2.0dev",
+  "version": "0.8.0dev",
   "description": "Dash Vega Components",
   "repository": {
     "type": "git",
