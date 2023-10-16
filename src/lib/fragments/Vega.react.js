@@ -21,7 +21,11 @@ export default class Vega extends Component {
     }
 
     componentDidUpdate(prevProps) {
-        if (this.props.spec !== prevProps.spec) {
+        if (this.props.id !== prevProps.id ||
+            this.props.svgRendererScaleFactor !== prevProps.svgRendererScaleFactor ||
+            JSON.stringify(this.props.opt) !== JSON.stringify(prevProps.opt) ||
+            JSON.stringify(this.props.spec) !== JSON.stringify(prevProps.spec)
+        ) {
             this.update();
         }
     }
