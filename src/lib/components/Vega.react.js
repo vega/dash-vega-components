@@ -48,6 +48,16 @@ Vega.propTypes = {
     signals: PropTypes.object,
 
     /**
+     * Generic style overrides on the Vega div
+     */
+    style: PropTypes.object,
+
+    /**
+     * Additional className of the Vega div
+     */
+    className: PropTypes.string,
+
+    /**
      * Dash-assigned callback that should be called to report property changes
      * to Dash, to make them available for callbacks.
      */

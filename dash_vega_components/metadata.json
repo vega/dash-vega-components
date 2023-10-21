@@ -41,11 +41,25 @@
           "name": "object"
         },
         "required": false,
-        "description": "",
+        "description": "A read-only dictionary of signals with the key being the name of the Signal. The value\ndepends on what kind of signal it is. The easiest way to make sense of it is\nto display the whole signal dictionary in a callback or print it to the console\nso that you see what the structure looks like.",
         "defaultValue": {
           "value": "{}",
           "computed": false
         }
+      },
+      "style": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "Generic style overrides on the Vega div"
+      },
+      "className": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Additional className of the Vega div"
       },
       "setProps": {
         "type": {

@@ -25,7 +25,9 @@ export default class Vega extends Component {
         if (this.props.id !== prevProps.id ||
             this.props.svgRendererScaleFactor !== prevProps.svgRendererScaleFactor ||
             JSON.stringify(this.props.opt) !== JSON.stringify(prevProps.opt) ||
-            JSON.stringify(this.props.spec) !== JSON.stringify(prevProps.spec)
+            JSON.stringify(this.props.spec) !== JSON.stringify(prevProps.spec) ||
+            JSON.stringify(this.props.style) !== JSON.stringify(prevProps.style) ||
+            this.props.className !== prevProps.className
         ) {
             this.update();
         }
@@ -81,7 +83,7 @@ export default class Vega extends Component {
     }
 
     render() {
-        return <div id={this.divId} ref={this.getRef} />;
+        return <div id={this.divId} ref={this.getRef} className={this.props.className} style={this.props.style} />;
     }
 }
 
@@ -118,6 +120,16 @@ Vega.propTypes = {
      * so that you see what the structure looks like.
      */
     signals: PropTypes.object,
+
+    /**
+     * Generic style overrides on the Vega div
+     */
+    style: PropTypes.object,
+
+    /**
+     * Additional className of the Vega div
+     */
+    className: PropTypes.string,
 
     /**
      * Dash-assigned callback that should be called to report property changes

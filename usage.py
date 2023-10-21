@@ -11,24 +11,35 @@ app = Dash(__name__)
 
 app.layout = html.Div(
     [
-        html.H1("Vega Chart", id="header1"),
-        dvc.Vega(id="vega-chart"),
-        html.H1("Vega-Lite Chart"),
-        dvc.Vega(id="vega-lite-chart"),
         html.H1("Altair Charts"),
-        dcc.Dropdown(["All", "USA", "Europe", "Japan"], "All", id="origin-dropdown"),
-        dcc.Slider(
-            0.5, 2, step=0.25, value=1.25, id="svg-renderer-scale-factor-slider"
+        dcc.Dropdown(
+            ["All", "USA", "Europe", "Japan"],
+            "All",
+            id="origin-dropdown",
+        ),
+        html.Div(
+            dcc.Slider(
+                0.5,
+                2,
+                step=0.25,
+                value=1.25,
+                id="svg-renderer-scale-factor-slider",
+            ),
         ),
         # Scale factor should not do anything here as renderer is not svg
-        dvc.Vega(id="altair-chart", opt={"actions": False}, svgRendererScaleFactor=2),
+        dvc.Vega(
+            id="altair-chart",
+            opt={"actions": False},
+            svgRendererScaleFactor=2,
+            className="some-class",  # Just for testing purposes
+        ),
+        html.Div("No value so far", id="altair-params"),
         # Here it should work
         dvc.Vega(
             id="altair-chart-scaled",
             opt={"renderer": "svg"},
             svgRendererScaleFactor=1.3,
         ),
-        html.Div("Default value", id="altair-params"),
         html.H1("Full-width"),
         html.Div(
             dvc.Vega(
@@ -36,7 +47,11 @@ app.layout = html.Div(
             ),
             style={"width": "100%"},
         ),
-        html.Div("Default value", id="altair-width-params"),
+        html.Div("No value so far", id="altair-width-params"),
+        html.H1("Vega Chart", id="header1"),
+        dvc.Vega(id="vega-chart"),
+        html.H1("Vega-Lite Chart"),
+        dvc.Vega(id="vega-lite-chart"),
     ]
 )
 
@@ -93,11 +108,11 @@ def display_altair_chart(origin, svgRendererScaleFactor):
             tooltip=["Name", "Origin", "Horsepower", "Miles_per_Gallon"],
             opacity=alt.condition(legend_origin, alt.value(0.8), alt.value(0.2)),
         )
-    ).add_params(circle_size, legend_origin)
-    spec = chart.to_dict()
+        .add_params(circle_size, legend_origin)
+    )
     return (
-        spec,
-        spec,
+        chart.to_dict(),
+        chart.to_dict(),
         chart.properties(width="container").to_dict(),
         svgRendererScaleFactor,
     )
