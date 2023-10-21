@@ -6,8 +6,10 @@ from vega_datasets import data
 
 import dash_vega_components as dvc
 
-dcc.Graph
-app = Dash(__name__)
+app = Dash(
+    __name__, external_stylesheets=["https://codepen.io/chriddyp/pen/bWLwgP.css"]
+)
+
 
 app.layout = html.Div(
     [
@@ -45,6 +47,7 @@ app.layout = html.Div(
             dvc.Vega(
                 id="altair-chart-width",
                 style={"width": "100%"},
+                signalsToObserve=["width", "some_param", "legend_origin"],
             ),
         ),
         html.Div("No value so far", id="altair-width-params"),
@@ -58,19 +61,16 @@ app.layout = html.Div(
 
 @callback(
     Output("altair-params", "children"),
-    Input("altair-chart", "signals"),
+    Input("altair-chart", "signalData"),
     prevent_initial_call=True,
 )
 def display_altair_params(params):
-    print("Display altair-params executed")
-    print(params)
-    print(type(params))
     return json.dumps(params)
 
 
 @callback(
     Output("altair-width-params", "children"),
-    Input("altair-chart-width", "signals"),
+    Input("altair-chart-width", "signalData"),
     prevent_initial_call=True,
 )
 def display_altair_width_params(params):
@@ -96,7 +96,9 @@ def display_altair_chart(origin, svgRendererScaleFactor):
         name="some_param",
         bind=alt.binding_range(min=10, max=100, step=5, name="Circle size"),
     )
-    legend_origin = alt.selection_point(fields=["Origin"], bind="legend")
+    legend_origin = alt.selection_point(
+        fields=["Origin"], bind="legend", name="legend_origin"
+    )
 
     chart = (
         alt.Chart(source)

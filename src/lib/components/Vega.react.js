@@ -13,7 +13,7 @@ const Vega = (props) => {
     );
 };
 
-Vega.defaultProps = { svgRendererScaleFactor: 1, signals: {}, debounceWait: 10 };
+Vega.defaultProps = { svgRendererScaleFactor: 1, signalsToObserve: [], signalData: {}, debounceWait: 10 };
 
 Vega.propTypes = {
     /**
@@ -40,12 +40,21 @@ Vega.propTypes = {
     svgRendererScaleFactor: PropTypes.number,
 
     /**
-     * A read-only dictionary of signals with the key being the name of the Signal. The value
-     * depends on what kind of signal it is. The easiest way to make sense of it is
-     * to display the whole signal dictionary in a callback or print it to the console
+     * A list of signal names to observe for changes. If you use Altair, these are the
+     * names of the parameters you define. The values of these signals
+     * will be available in the signalData property. You can pass ["all"] to
+     * observe all signals.
+     * Defaults to no signals.
+     */
+    signalsToObserve: PropTypes.arrayOf(PropTypes.string),
+
+    /**
+     * A read-only dictionary of signals with the key being the name of the signal.
+     * The easiest way to make sense of it is to display the whole signal dictionary
+     * in your app layout or print it to the console
      * so that you see what the structure looks like.
      */
-    signals: PropTypes.object,
+    signalData: PropTypes.object,
 
     /**
      * Generic style overrides on the Vega div
