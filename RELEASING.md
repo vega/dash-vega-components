@@ -12,7 +12,7 @@
         npm install
         npm run build
 
-        python usage.py
+        python example_app.py
 
 5. Commit changes and push:
 
