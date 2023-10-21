@@ -15,6 +15,10 @@ Keyword arguments:
 - className (string; optional):
     Additional className of the Vega div.
 
+- debounceWait (number; default 10):
+    Debouncing wait time in milliseconds before signals property is
+    updated Default value is 10.
+
 - opt (dict; optional):
     Vega-Embed options. See https://github.com/vega/vega-embed#options
     for more details.
@@ -43,10 +47,10 @@ Keyword arguments:
     _namespace = 'dash_vega_components'
     _type = 'Vega'
     @_explicitize_args
-    def __init__(self, id=Component.UNDEFINED, spec=Component.UNDEFINED, opt=Component.UNDEFINED, svgRendererScaleFactor=Component.UNDEFINED, signals=Component.UNDEFINED, style=Component.UNDEFINED, className=Component.UNDEFINED, **kwargs):
-        self._prop_names = ['id', 'className', 'opt', 'signals', 'spec', 'style', 'svgRendererScaleFactor']
+    def __init__(self, id=Component.UNDEFINED, spec=Component.UNDEFINED, opt=Component.UNDEFINED, svgRendererScaleFactor=Component.UNDEFINED, signals=Component.UNDEFINED, style=Component.UNDEFINED, className=Component.UNDEFINED, debounceWait=Component.UNDEFINED, **kwargs):
+        self._prop_names = ['id', 'className', 'debounceWait', 'opt', 'signals', 'spec', 'style', 'svgRendererScaleFactor']
         self._valid_wildcard_attributes =            []
-        self.available_properties = ['id', 'className', 'opt', 'signals', 'spec', 'style', 'svgRendererScaleFactor']
+        self.available_properties = ['id', 'className', 'debounceWait', 'opt', 'signals', 'spec', 'style', 'svgRendererScaleFactor']
         self.available_wildcard_properties =            []
         _explicit_args = kwargs.pop('_explicit_args')
         _locals = locals()

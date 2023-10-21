@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
 import vegaEmbed, { EmbedOptions } from 'vega-embed';
 import * as d3 from 'd3';
+import * as debounce from 'lodash.debounce';
 
 
 export default class Vega extends Component {
@@ -53,9 +54,12 @@ export default class Vega extends Component {
             // signals to the props if they change.
             this.props.setProps({ signals: signals });
 
+            const wait = this.props.debounceWait;
+            const maxWait = wait;
+
             // Register signal listeners to update the props when signals change.
             for (let signal in signals) {
-                this.vegaView.addSignalListener(signal, (name, value) => {
+                const signalHandler = (name, value) => {
                     // Not sure if this is needed but it's in the Jupyterchart
                     // implementation in Vega-Altair. Worth to be
                     // on the safe side for now.
@@ -65,7 +69,8 @@ export default class Vega extends Component {
                     let signals = { ...this.props.signals };
                     signals[name] = cleanedValue;
                     this.props.setProps({ signals: signals });
-                });
+                };
+                this.vegaView.addSignalListener(signal, debounce(signalHandler, wait, { maxWait: maxWait }));
             }
 
             const options = this.props.opt || {};
@@ -87,7 +92,7 @@ export default class Vega extends Component {
     }
 }
 
-Vega.defaultProps = { svgRendererScaleFactor: 1, signals: {} };
+Vega.defaultProps = { svgRendererScaleFactor: 1, signals: {}, debounceWait: 10 };
 
 Vega.propTypes = {
     /**
@@ -130,6 +135,12 @@ Vega.propTypes = {
      * Additional className of the Vega div
      */
     className: PropTypes.string,
+
+    /**
+     * Debouncing wait time in milliseconds before signals property is updated
+     * Default value is 10.
+     */
+    debounceWait: PropTypes.number,
 
     /**
      * Dash-assigned callback that should be called to report property changes

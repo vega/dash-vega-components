@@ -61,6 +61,17 @@
         "required": false,
         "description": "Additional className of the Vega div"
       },
+      "debounceWait": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Debouncing wait time in milliseconds before signals property is updated\nDefault value is 10.",
+        "defaultValue": {
+          "value": "10",
+          "computed": false
+        }
+      },
       "setProps": {
         "type": {
           "name": "func"

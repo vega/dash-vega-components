@@ -13,7 +13,7 @@ const Vega = (props) => {
     );
 };
 
-Vega.defaultProps = { svgRendererScaleFactor: 1, signals: {} };
+Vega.defaultProps = { svgRendererScaleFactor: 1, signals: {}, debounceWait: 10 };
 
 Vega.propTypes = {
     /**
@@ -56,6 +56,12 @@ Vega.propTypes = {
      * Additional className of the Vega div
      */
     className: PropTypes.string,
+
+    /**
+     * Debouncing wait time in milliseconds before signals property is updated
+     * Default value is 10.
+     */
+    debounceWait: PropTypes.number,
 
     /**
      * Dash-assigned callback that should be called to report property changes
