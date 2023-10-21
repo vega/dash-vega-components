@@ -10,6 +10,7 @@ export default class Vega extends Component {
         super(props);
         this.getRef = this.getRef.bind(this);
         this.divId = "vega-".concat(uuidv4());
+        this.finalize = null;
     }
 
     getRef(el) {
@@ -32,7 +33,14 @@ export default class Vega extends Component {
 
     update() {
         if (!this.props.spec) { return; }
-        vegaEmbed(this.el, this.props.spec, this.props.opt).then(() => {
+        // Function exists if a view has been rendered before with this component
+        // If so, it's better to call finalize before creating a new view to clean up
+        // timers, event listeners, etc.
+        if (this.finalize) { this.finalize(); }
+
+        vegaEmbed(this.el, this.props.spec, this.props.opt).then((result) => {
+            this.finalize = result.finalize;
+            this.vega_view = result.view;
             const options = this.props.opt || {};
             const renderer = options.renderer || 'canvas';
             if (renderer === 'svg' && this.props.svgRendererScaleFactor !== 1) {
