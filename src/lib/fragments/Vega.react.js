@@ -49,6 +49,13 @@ export default class Vega extends Component {
             this.finalize = result.finalize;
             this.vegaView = result.view;
             const signals = this.vegaView.getState().signals || {};
+            // Ignore the 'unit' signal as it's rather complex,
+            // contains references which can't be serialized to JSON, and it's
+            // not useful to most users in the Dash context
+            if ('unit' in signals) {
+                delete signals.unit;
+            };
+
             // Initially, set all signals so that the evaluated values are available
             // even if they never change. Else, the code below would only add
             // signals to the props if they change.
@@ -58,18 +65,18 @@ export default class Vega extends Component {
             const maxWait = wait;
 
             // Register signal listeners to update the props when signals change.
+            const signalHandler = (name, value) => {
+                // Not sure if this is needed but it's in the Jupyterchart
+                // implementation in Vega-Altair. Worth to be
+                // on the safe side for now.
+                const cleanedValue = this.cleanJson(value);
+                // Get a shallow copy of the signals. Shallow should be enough
+                // as we overwrite the top level values anyway.
+                let signals = { ...this.props.signals };
+                signals[name] = cleanedValue;
+                this.props.setProps({ signals: signals });
+            };
             for (let signal in signals) {
-                const signalHandler = (name, value) => {
-                    // Not sure if this is needed but it's in the Jupyterchart
-                    // implementation in Vega-Altair. Worth to be
-                    // on the safe side for now.
-                    const cleanedValue = this.cleanJson(value);
-                    // Get a shallow copy of the signals. Shallow should be enough
-                    // as we overwrite the top level values anyway.
-                    let signals = { ...this.props.signals };
-                    signals[name] = cleanedValue;
-                    this.props.setProps({ signals: signals });
-                };
                 this.vegaView.addSignalListener(signal, debounce(signalHandler, wait, { maxWait: maxWait }));
             }
 
