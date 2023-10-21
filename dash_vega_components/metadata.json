@@ -30,14 +30,22 @@
           "name": "number"
         },
         "required": false,
-        "description": "A number which is used to scale the chart in case the svg renderer is used.\nThis is useful when you want to increase the size of the chart keeping\nthe relative proportions of all chart elements to each other the same.\nDefault value is 1."
+        "description": "A number which is used to scale the chart in case the svg renderer is used.\nThis is useful when you want to increase the size of the chart keeping\nthe relative proportions of all chart elements to each other the same.\nDefault value is 1.",
+        "defaultValue": {
+          "value": "1",
+          "computed": false
+        }
       },
-      "params": {
+      "signals": {
         "type": {
           "name": "object"
         },
         "required": false,
-        "description": ""
+        "description": "",
+        "defaultValue": {
+          "value": "{}",
+          "computed": false
+        }
       },
       "setProps": {
         "type": {

@@ -31,6 +31,10 @@ export default class Vega extends Component {
         }
     }
 
+    cleanJson(data) {
+        return JSON.parse(JSON.stringify(data))
+    }
+
     update() {
         if (!this.props.spec) { return; }
         // Function exists if a view has been rendered before with this component
@@ -40,18 +44,27 @@ export default class Vega extends Component {
 
         vegaEmbed(this.el, this.props.spec, this.props.opt).then((result) => {
             this.finalize = result.finalize;
-            this.vega_view = result.view;
-            const signals = this.vega_view.getState().signals || {};
-            // TODO: For every parameter in the spec (_params is not yet defined), add a listener that calls
-            //       setProps with the signal value
-            // for (let signal in signals) {
-            //     this.vega_view.addSignalListener(signal, (name, value) => {
-            //         this.setProps({ params: { [name]: value } });
-            //     });
-            // }
-            this.vega_view.addSignalListener('some_param', (name, value) => {
-                this.props.setProps({ params: { [name]: value } });
-            });
+            this.vegaView = result.view;
+            const signals = this.vegaView.getState().signals || {};
+            // Initially, set all signals so that the evaluated values are available
+            // even if they never change. Else, the code below would only add
+            // signals to the props if they change.
+            this.props.setProps({ signals: signals });
+
+            // Register signal listeners to update the props when signals change.
+            for (let signal in signals) {
+                this.vegaView.addSignalListener(signal, (name, value) => {
+                    // Not sure if this is needed but it's in the Jupyterchart
+                    // implementation in Vega-Altair. Worth to be
+                    // on the safe side for now.
+                    const cleanedValue = this.cleanJson(value);
+                    // Get a shallow copy of the signals. Shallow should be enough
+                    // as we overwrite the top level values anyway.
+                    let signals = { ...this.props.signals };
+                    signals[name] = cleanedValue;
+                    this.props.setProps({ signals: signals });
+                });
+            }
 
             const options = this.props.opt || {};
             const renderer = options.renderer || 'canvas';
@@ -72,7 +85,7 @@ export default class Vega extends Component {
     }
 }
 
-Vega.defaultProps = { svgRendererScaleFactor: 1 };
+Vega.defaultProps = { svgRendererScaleFactor: 1, signals: {} };
 
 Vega.propTypes = {
     /**
@@ -98,7 +111,13 @@ Vega.propTypes = {
      */
     svgRendererScaleFactor: PropTypes.number,
 
-    params: PropTypes.object,
+    /**
+     * A read-only dictionary of signals with the key being the name of the Signal. The value
+     * depends on what kind of signal it is. The easiest way to make sense of it is
+     * to display the whole signal dictionary in a callback or print it to the console
+     * so that you see what the structure looks like.
+     */
+    signals: PropTypes.object,
 
     /**
      * Dash-assigned callback that should be called to report property changes

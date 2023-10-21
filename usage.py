@@ -1,3 +1,5 @@
+import json
+
 import altair as alt
 from dash import Dash, Input, Output, callback, dcc, html
 from vega_datasets import data
@@ -27,25 +29,43 @@ app.layout = html.Div(
             svgRendererScaleFactor=1.3,
         ),
         html.Div("Default value", id="altair-params"),
+        html.H1("Full-width"),
+        html.Div(
+            dvc.Vega(
+                id="altair-chart-width",
+            ),
+            style={"width": "100%"},
+        ),
+        html.Div("Default value", id="altair-width-params"),
     ]
 )
 
 
 @callback(
     Output("altair-params", "children"),
-    Input("altair-chart", "params"),
+    Input("altair-chart", "signals"),
     prevent_initial_call=True,
 )
 def display_altair_params(params):
     print("Display altair-params executed")
     print(params)
     print(type(params))
-    return f"Some value: {params['some_param']}"
+    return json.dumps(params)
+
+
+@callback(
+    Output("altair-width-params", "children"),
+    Input("altair-chart-width", "signals"),
+    prevent_initial_call=True,
+)
+def display_altair_width_params(params):
+    return json.dumps(params)
 
 
 @callback(
     Output("altair-chart", "spec"),
     Output("altair-chart-scaled", "spec"),
+    Output("altair-chart-width", "spec"),
     Output("altair-chart-scaled", "svgRendererScaleFactor"),
     Input("origin-dropdown", "value"),
     Input("svg-renderer-scale-factor-slider", "value"),
@@ -61,6 +81,7 @@ def display_altair_chart(origin, svgRendererScaleFactor):
         name="some_param",
         bind=alt.binding_range(min=10, max=100, step=5, name="Circle size"),
     )
+    legend_origin = alt.selection_point(fields=["Origin"], bind="legend")
 
     chart = (
         alt.Chart(source)
@@ -70,10 +91,16 @@ def display_altair_chart(origin, svgRendererScaleFactor):
             y="Miles_per_Gallon",
             color=alt.Color("Origin").scale(domain=["Europe", "Japan", "USA"]),
             tooltip=["Name", "Origin", "Horsepower", "Miles_per_Gallon"],
+            opacity=alt.condition(legend_origin, alt.value(0.8), alt.value(0.2)),
         )
-    ).add_params(circle_size)
+    ).add_params(circle_size, legend_origin)
     spec = chart.to_dict()
-    return spec, spec, svgRendererScaleFactor
+    return (
+        spec,
+        spec,
+        chart.properties(width="container").to_dict(),
+        svgRendererScaleFactor,
+    )
 
 
 @callback(Output("vega-lite-chart", "spec"), Input("header1", "children"))

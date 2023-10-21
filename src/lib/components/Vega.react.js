@@ -13,7 +13,7 @@ const Vega = (props) => {
     );
 };
 
-Vega.defaultProps = {};
+Vega.defaultProps = { svgRendererScaleFactor: 1, signals: {} };
 
 Vega.propTypes = {
     /**
@@ -39,7 +39,13 @@ Vega.propTypes = {
      */
     svgRendererScaleFactor: PropTypes.number,
 
-    params: PropTypes.object,
+    /**
+     * A read-only dictionary of signals with the key being the name of the Signal. The value
+     * depends on what kind of signal it is. The easiest way to make sense of it is
+     * to display the whole signal dictionary in a callback or print it to the console
+     * so that you see what the structure looks like.
+     */
+    signals: PropTypes.object,
 
     /**
      * Dash-assigned callback that should be called to report property changes
