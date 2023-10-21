@@ -39,6 +39,8 @@ Vega.propTypes = {
      */
     svgRendererScaleFactor: PropTypes.number,
 
+    params: PropTypes.object,
+
     /**
      * Dash-assigned callback that should be called to report property changes
      * to Dash, to make them available for callbacks.

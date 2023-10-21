@@ -41,6 +41,18 @@ export default class Vega extends Component {
         vegaEmbed(this.el, this.props.spec, this.props.opt).then((result) => {
             this.finalize = result.finalize;
             this.vega_view = result.view;
+            const signals = this.vega_view.getState().signals || {};
+            // TODO: For every parameter in the spec (_params is not yet defined), add a listener that calls
+            //       setProps with the signal value
+            // for (let signal in signals) {
+            //     this.vega_view.addSignalListener(signal, (name, value) => {
+            //         this.setProps({ params: { [name]: value } });
+            //     });
+            // }
+            this.vega_view.addSignalListener('some_param', (name, value) => {
+                this.props.setProps({ params: { [name]: value } });
+            });
+
             const options = this.props.opt || {};
             const renderer = options.renderer || 'canvas';
             if (renderer === 'svg' && this.props.svgRendererScaleFactor !== 1) {
@@ -85,6 +97,8 @@ Vega.propTypes = {
      * Default value is 1.
      */
     svgRendererScaleFactor: PropTypes.number,
+
+    params: PropTypes.object,
 
     /**
      * Dash-assigned callback that should be called to report property changes

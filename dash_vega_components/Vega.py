@@ -16,6 +16,8 @@ Keyword arguments:
     Vega-Embed options. See https://github.com/vega/vega-embed#options
     for more details.
 
+- params (dict; optional)
+
 - spec (dict; optional):
     A Vega or Vega-Lite spec. To pass an Altair chart, use
     chart.to_dict().
@@ -30,10 +32,10 @@ Keyword arguments:
     _namespace = 'dash_vega_components'
     _type = 'Vega'
     @_explicitize_args
-    def __init__(self, id=Component.UNDEFINED, spec=Component.UNDEFINED, opt=Component.UNDEFINED, svgRendererScaleFactor=Component.UNDEFINED, **kwargs):
-        self._prop_names = ['id', 'opt', 'spec', 'svgRendererScaleFactor']
+    def __init__(self, id=Component.UNDEFINED, spec=Component.UNDEFINED, opt=Component.UNDEFINED, svgRendererScaleFactor=Component.UNDEFINED, params=Component.UNDEFINED, **kwargs):
+        self._prop_names = ['id', 'opt', 'params', 'spec', 'svgRendererScaleFactor']
         self._valid_wildcard_attributes =            []
-        self.available_properties = ['id', 'opt', 'spec', 'svgRendererScaleFactor']
+        self.available_properties = ['id', 'opt', 'params', 'spec', 'svgRendererScaleFactor']
         self.available_wildcard_properties =            []
         _explicit_args = kwargs.pop('_explicit_args')
         _locals = locals()

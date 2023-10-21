@@ -4,6 +4,7 @@ from vega_datasets import data
 
 import dash_vega_components as dvc
 
+dcc.Graph
 app = Dash(__name__)
 
 app.layout = html.Div(
@@ -25,8 +26,21 @@ app.layout = html.Div(
             opt={"renderer": "svg"},
             svgRendererScaleFactor=1.3,
         ),
+        html.Div("Default value", id="altair-params"),
     ]
 )
+
+
+@callback(
+    Output("altair-params", "children"),
+    Input("altair-chart", "params"),
+    prevent_initial_call=True,
+)
+def display_altair_params(params):
+    print("Display altair-params executed")
+    print(params)
+    print(type(params))
+    return f"Some value: {params['some_param']}"
 
 
 @callback(
@@ -42,16 +56,22 @@ def display_altair_chart(origin, svgRendererScaleFactor):
     if origin != "All":
         source = source[source["Origin"] == origin]
 
+    circle_size = alt.param(
+        value=60,
+        name="some_param",
+        bind=alt.binding_range(min=10, max=100, step=5, name="Circle size"),
+    )
+
     chart = (
         alt.Chart(source)
-        .mark_circle(size=60)
+        .mark_circle(size=circle_size)
         .encode(
             x="Horsepower",
             y="Miles_per_Gallon",
             color=alt.Color("Origin").scale(domain=["Europe", "Japan", "USA"]),
             tooltip=["Name", "Origin", "Horsepower", "Miles_per_Gallon"],
         )
-    )
+    ).add_params(circle_size)
     spec = chart.to_dict()
     return spec, spec, svgRendererScaleFactor
 
