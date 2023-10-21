@@ -44,8 +44,8 @@ app.layout = html.Div(
         html.Div(
             dvc.Vega(
                 id="altair-chart-width",
+                style={"width": "100%"},
             ),
-            style={"width": "100%"},
         ),
         html.Div("No value so far", id="altair-width-params"),
         html.H1("Vega Chart", id="header1"),
