@@ -26,7 +26,7 @@ Keyword arguments:
 - signalData (dict; optional):
     A read-only dictionary of signals with the key being the name of
     the signal. The easiest way to make sense of it is to display the
-    whole signal dictionary in your app layout or print it to the
+    whole signalData dictionary in your app layout or print it to the
     console so that you see what the structure looks like.
 
 - signalsToObserve (list of strings; optional):

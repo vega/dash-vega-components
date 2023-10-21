@@ -1,4 +1,6 @@
+# ruff: noqa: E501
 import json
+import textwrap
 
 import altair as alt
 from dash import Dash, Input, Output, callback, dcc, html
@@ -13,48 +15,109 @@ app = Dash(
 
 app.layout = html.Div(
     [
-        html.H1("Altair Charts"),
-        dcc.Dropdown(
-            ["All", "USA", "Europe", "Japan"],
-            "All",
-            id="origin-dropdown",
+        html.H1("Demo of dash-vega-components", id="header1"),
+        dcc.Tabs(
+            [
+                dcc.Tab(
+                    label="Vega-Altair charts",
+                    children=[
+                        dcc.Markdown(
+                            textwrap.dedent(
+                                """\
+                            You can pass any [Vega-Altair](https://altair-viz.github.io/) chart to `dash_vega_components.Vega` by
+                            converting it to a dictionary using `chart.to_dict()`. You
+                            can use the interactivity of Altair itself or update other
+                            components on the page using callbacks which can read out
+                            the current state of the chart.
+                            """
+                            )
+                        ),
+                        dcc.Dropdown(
+                            ["All", "USA", "Europe", "Japan"],
+                            "All",
+                            id="origin-dropdown",
+                            style={"width": "400px"},
+                        ),
+                        dvc.Vega(
+                            id="altair-chart",
+                            signalsToObserve=[
+                                "circle_size",
+                                "legend_origin",
+                                "brush_selection",
+                            ],
+                        ),
+                        dcc.Markdown(
+                            textwrap.dedent(
+                                """\
+                            You can read out any parameter/signal of a chart. Try the following and observe how the dictionary below changes:
+
+                            * change the 'Circle size' above
+                            * click on an entry in the legend
+                            * select a region in the chart (the numbers you see below are the lower and upper bounds of the selection)
+                            """
+                            )
+                        ),
+                        html.Div(id="altair-params"),
+                        dcc.Markdown(
+                            "You can pass various options for the rendering. For example, you can change the renderer to SVG and scale the chart keeping the original proportions",
+                            style={"marginTop": "40px"},
+                        ),
+                        html.Div(
+                            dcc.Slider(
+                                0.5,
+                                2,
+                                step=0.25,
+                                value=1.25,
+                                id="svg-renderer-scale-factor-slider",
+                            ),
+                            style={"width": "400px"},
+                        ),
+                        dvc.Vega(
+                            id="altair-chart-scaled",
+                            opt={"renderer": "svg", "actions": False},
+                            svgRendererScaleFactor=1.3,
+                        ),
+                        dcc.Markdown(
+                            "Make the chart responsive by setting `width='container'` on the Altair chart and `style={'width': '100%'}` on the `Vega` component. Resize your window to see the effect. Notice that you can also read out the width of the chart if you want.",
+                            style={"marginTop": "20px"},
+                        ),
+                        html.Div(
+                            dvc.Vega(
+                                id="altair-chart-width",
+                                style={"width": "100%"},
+                                signalsToObserve=[
+                                    "width",
+                                    "circle_size",
+                                    "legend_origin",
+                                ],
+                            ),
+                        ),
+                        html.Div("No value so far", id="altair-width-params"),
+                    ],
+                ),
+                dcc.Tab(
+                    label="Vega and Vega-Lite charts",
+                    children=[
+                        dcc.Markdown(
+                            """
+                            [Vega](https://vega.github.io/vega/) and [Vega-Lite](https://vega.github.io/vega-lite/) charts work in exactly the same way and support
+                            the same features as Vega-Altair charts.
+                            """
+                        ),
+                        html.H3("Vega chart"),
+                        html.Div(
+                            "Example taken from https://vega.github.io/vega/examples/earthquakes/"
+                        ),
+                        dvc.Vega(id="vega-chart"),
+                        html.H3("Vega-Lite chart"),
+                        html.Div(
+                            "Example taken from https://vega.github.io/vega-lite/examples/interactive_multi_line_pivot_tooltip.html"
+                        ),
+                        dvc.Vega(id="vega-lite-chart"),
+                    ],
+                ),
+            ]
         ),
-        html.Div(
-            dcc.Slider(
-                0.5,
-                2,
-                step=0.25,
-                value=1.25,
-                id="svg-renderer-scale-factor-slider",
-            ),
-        ),
-        # Scale factor should not do anything here as renderer is not svg
-        dvc.Vega(
-            id="altair-chart",
-            opt={"actions": False},
-            svgRendererScaleFactor=2,
-            className="some-class",  # Just for testing purposes
-        ),
-        html.Div("No value so far", id="altair-params"),
-        # Here it should work
-        dvc.Vega(
-            id="altair-chart-scaled",
-            opt={"renderer": "svg"},
-            svgRendererScaleFactor=1.3,
-        ),
-        html.H1("Full-width"),
-        html.Div(
-            dvc.Vega(
-                id="altair-chart-width",
-                style={"width": "100%"},
-                signalsToObserve=["width", "some_param", "legend_origin"],
-            ),
-        ),
-        html.Div("No value so far", id="altair-width-params"),
-        html.H1("Vega Chart", id="header1"),
-        dvc.Vega(id="vega-chart"),
-        html.H1("Vega-Lite Chart"),
-        dvc.Vega(id="vega-lite-chart"),
     ]
 )
 
@@ -65,7 +128,7 @@ app.layout = html.Div(
     prevent_initial_call=True,
 )
 def display_altair_params(params):
-    return json.dumps(params)
+    return json.dumps(params, indent=2)
 
 
 @callback(
@@ -79,26 +142,53 @@ def display_altair_width_params(params):
 
 @callback(
     Output("altair-chart", "spec"),
-    Output("altair-chart-scaled", "spec"),
-    Output("altair-chart-width", "spec"),
-    Output("altair-chart-scaled", "svgRendererScaleFactor"),
     Input("origin-dropdown", "value"),
+)
+def display_altair_chart_1(origin):
+    chart = make_chart(origin, add_circle_size_slider=True, add_histogram=True)
+    return chart.to_dict()
+
+
+@callback(
+    Output("altair-chart-scaled", "spec"),
+    Output("altair-chart-scaled", "svgRendererScaleFactor"),
     Input("svg-renderer-scale-factor-slider", "value"),
 )
-def display_altair_chart(origin, svgRendererScaleFactor):
+def display_altair_chart_2(svgRendererScaleFactor):
+    chart = make_chart("All", False)
+    return chart.to_dict(), svgRendererScaleFactor
+
+
+@callback(
+    Output("altair-chart-width", "spec"),
+    Input("header1", "children"),
+)
+def display_altair_chart_3(_):
+    chart = make_chart("All", True)
+    # This can also be passed directly when intantiating the chart, e.g.
+    # alt.Chart(..., width="container")
+    chart = chart.properties(width="container")
+    return chart.to_dict()
+
+
+def make_chart(origin: str, add_circle_size_slider: bool, add_histogram: bool = False):
     source = data.cars()
 
     if origin != "All":
         source = source[source["Origin"] == origin]
 
-    circle_size = alt.param(
-        value=60,
-        name="some_param",
-        bind=alt.binding_range(min=10, max=100, step=5, name="Circle size"),
-    )
     legend_origin = alt.selection_point(
         fields=["Origin"], bind="legend", name="legend_origin"
     )
+
+    if add_circle_size_slider:
+        circle_size = alt.param(
+            value=60,
+            name="circle_size",
+            bind=alt.binding_range(min=10, max=100, step=5, name="Circle size"),
+        )
+    else:
+        circle_size = alt.Undefined
 
     chart = (
         alt.Chart(source)
@@ -110,39 +200,80 @@ def display_altair_chart(origin, svgRendererScaleFactor):
             tooltip=["Name", "Origin", "Horsepower", "Miles_per_Gallon"],
             opacity=alt.condition(legend_origin, alt.value(0.8), alt.value(0.2)),
         )
-        .add_params(circle_size, legend_origin)
+        .add_params(legend_origin)
     )
-    return (
-        chart.to_dict(),
-        chart.to_dict(),
-        chart.properties(width="container").to_dict(),
-        svgRendererScaleFactor,
-    )
+    if add_circle_size_slider:
+        chart = chart.add_params(circle_size)
+
+    if add_histogram:
+        brush = alt.selection_interval(name="brush_selection")
+        chart = chart.add_params(brush)
+        bars = (
+            alt.Chart(source)
+            .mark_bar()
+            .encode(y="Origin:N", color="Origin:N", x="count(Origin):Q")
+            .transform_filter(brush)
+        )
+        chart = chart & bars
+    return chart
 
 
 @callback(Output("vega-lite-chart", "spec"), Input("header1", "children"))
 def display_vega_lite_chart(_):
     return {
         "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-        "description": "A simple bar chart with embedded data.",
         "data": {
-            "values": [
-                {"a": "A", "b": 28},
-                {"a": "B", "b": 55},
-                {"a": "C", "b": 43},
-                {"a": "D", "b": 91},
-                {"a": "E", "b": 81},
-                {"a": "F", "b": 53},
-                {"a": "G", "b": 19},
-                {"a": "H", "b": 87},
-                {"a": "I", "b": 52},
-            ]
+            "url": "https://raw.githubusercontent.com/vega/vega-datasets/main/data/stocks.csv"
         },
-        "mark": "bar",
-        "encoding": {
-            "x": {"field": "a", "type": "nominal", "axis": {"labelAngle": 0}},
-            "y": {"field": "b", "type": "quantitative"},
-        },
+        "width": 400,
+        "height": 300,
+        "encoding": {"x": {"field": "date", "type": "temporal"}},
+        "layer": [
+            {
+                "encoding": {
+                    "color": {"field": "symbol", "type": "nominal"},
+                    "y": {"field": "price", "type": "quantitative"},
+                },
+                "layer": [
+                    {"mark": "line"},
+                    {
+                        "transform": [{"filter": {"param": "hover", "empty": False}}],
+                        "mark": "point",
+                    },
+                ],
+            },
+            {
+                "transform": [
+                    {"pivot": "symbol", "value": "price", "groupby": ["date"]}
+                ],
+                "mark": "rule",
+                "encoding": {
+                    "opacity": {
+                        "condition": {"value": 0.3, "param": "hover", "empty": False},
+                        "value": 0,
+                    },
+                    "tooltip": [
+                        {"field": "AAPL", "type": "quantitative"},
+                        {"field": "AMZN", "type": "quantitative"},
+                        {"field": "GOOG", "type": "quantitative"},
+                        {"field": "IBM", "type": "quantitative"},
+                        {"field": "MSFT", "type": "quantitative"},
+                    ],
+                },
+                "params": [
+                    {
+                        "name": "hover",
+                        "select": {
+                            "type": "point",
+                            "fields": ["date"],
+                            "nearest": True,
+                            "on": "mouseover",
+                            "clear": "mouseout",
+                        },
+                    }
+                ],
+            },
+        ],
     }
 
 
@@ -150,87 +281,99 @@ def display_vega_lite_chart(_):
 def display_vega_chart(_):
     return {
         "$schema": "https://vega.github.io/schema/vega/v5.json",
-        "description": "A basic stacked bar chart example.",
-        "width": 500,
-        "height": 200,
-        "padding": 5,
-        "data": [
+        "description": "An interactive globe depicting earthquake locations and magnitudes.",
+        "padding": 10,
+        "width": 450,
+        "height": 450,
+        "autosize": "none",
+        "signals": [
             {
-                "name": "table",
-                "values": [
-                    {"x": 0, "y": 28, "c": 0},
-                    {"x": 0, "y": 55, "c": 1},
-                    {"x": 1, "y": 43, "c": 0},
-                    {"x": 1, "y": 91, "c": 1},
-                    {"x": 2, "y": 81, "c": 0},
-                    {"x": 2, "y": 53, "c": 1},
-                    {"x": 3, "y": 19, "c": 0},
-                    {"x": 3, "y": 87, "c": 1},
-                    {"x": 4, "y": 52, "c": 0},
-                    {"x": 4, "y": 48, "c": 1},
-                    {"x": 5, "y": 24, "c": 0},
-                    {"x": 5, "y": 49, "c": 1},
-                    {"x": 6, "y": 87, "c": 0},
-                    {"x": 6, "y": 66, "c": 1},
-                    {"x": 7, "y": 17, "c": 0},
-                    {"x": 7, "y": 27, "c": 1},
-                    {"x": 8, "y": 68, "c": 0},
-                    {"x": 8, "y": 16, "c": 1},
-                    {"x": 9, "y": 49, "c": 0},
-                    {"x": 9, "y": 15, "c": 1},
-                ],
-                "transform": [
-                    {
-                        "type": "stack",
-                        "groupby": ["x"],
-                        "sort": {"field": "c"},
-                        "field": "y",
-                    }
-                ],
+                "name": "quakeSize",
+                "value": 6,
+                "bind": {"input": "range", "min": 0, "max": 12},
+            },
+            {
+                "name": "rotate0",
+                "value": 90,
+                "bind": {"input": "range", "min": -180, "max": 180},
+            },
+            {
+                "name": "rotate1",
+                "value": -5,
+                "bind": {"input": "range", "min": -180, "max": 180},
+            },
+        ],
+        "data": [
+            {"name": "sphere", "values": [{"type": "Sphere"}]},
+            {
+                "name": "world",
+                "url": "https://raw.githubusercontent.com/vega/vega-datasets/main/data/world-110m.json",
+                "format": {"type": "topojson", "feature": "countries"},
+            },
+            {
+                "name": "earthquakes",
+                "url": "https://raw.githubusercontent.com/vega/vega-datasets/main/data/earthquakes.json",
+                "format": {"type": "json", "property": "features"},
+            },
+        ],
+        "projections": [
+            {
+                "name": "projection",
+                "scale": 225,
+                "type": "orthographic",
+                "translate": {"signal": "[width/2, height/2]"},
+                "rotate": [{"signal": "rotate0"}, {"signal": "rotate1"}, 0],
             }
         ],
         "scales": [
             {
-                "name": "x",
-                "type": "band",
-                "range": "width",
-                "domain": {"data": "table", "field": "x"},
-            },
-            {
-                "name": "y",
-                "type": "linear",
-                "range": "height",
-                "nice": True,
-                "zero": True,
-                "domain": {"data": "table", "field": "y1"},
-            },
-            {
-                "name": "color",
-                "type": "ordinal",
-                "range": "category",
-                "domain": {"data": "table", "field": "c"},
-            },
-        ],
-        "axes": [
-            {"orient": "bottom", "scale": "x", "zindex": 1},
-            {"orient": "left", "scale": "y", "zindex": 1},
+                "name": "size",
+                "type": "sqrt",
+                "domain": [0, 100],
+                "range": [0, {"signal": "quakeSize"}],
+            }
         ],
         "marks": [
             {
-                "type": "rect",
-                "from": {"data": "table"},
+                "type": "shape",
+                "from": {"data": "sphere"},
                 "encode": {
-                    "enter": {
-                        "x": {"scale": "x", "field": "x"},
-                        "width": {"scale": "x", "band": 1, "offset": -1},
-                        "y": {"scale": "y", "field": "y0"},
-                        "y2": {"scale": "y", "field": "y1"},
-                        "fill": {"scale": "color", "field": "c"},
-                    },
-                    "update": {"fillOpacity": {"value": 1}},
-                    "hover": {"fillOpacity": {"value": 0.5}},
+                    "update": {
+                        "fill": {"value": "aliceblue"},
+                        "stroke": {"value": "black"},
+                        "strokeWidth": {"value": 1.5},
+                    }
                 },
-            }
+                "transform": [{"type": "geoshape", "projection": "projection"}],
+            },
+            {
+                "type": "shape",
+                "from": {"data": "world"},
+                "encode": {
+                    "update": {
+                        "fill": {"value": "mintcream"},
+                        "stroke": {"value": "black"},
+                        "strokeWidth": {"value": 0.35},
+                    }
+                },
+                "transform": [{"type": "geoshape", "projection": "projection"}],
+            },
+            {
+                "type": "shape",
+                "from": {"data": "earthquakes"},
+                "encode": {
+                    "update": {"opacity": {"value": 0.25}, "fill": {"value": "red"}}
+                },
+                "transform": [
+                    {
+                        "type": "geoshape",
+                        "projection": "projection",
+                        "pointRadius": {
+                            "expr": "scale('size', exp(datum.properties.mag))"
+                        },
+                    }
+                ],
+            },
         ],
     }
 

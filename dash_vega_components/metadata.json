@@ -55,7 +55,7 @@
           "name": "object"
         },
         "required": false,
-        "description": "A read-only dictionary of signals with the key being the name of the signal.\nThe easiest way to make sense of it is to display the whole signal dictionary\nin your app layout or print it to the console\nso that you see what the structure looks like.",
+        "description": "A read-only dictionary of signals with the key being the name of the signal.\nThe easiest way to make sense of it is to display the whole signalData dictionary\nin your app layout or print it to the console\nso that you see what the structure looks like.",
         "defaultValue": {
           "value": "{}",
           "computed": false
