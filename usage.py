@@ -18,7 +18,13 @@ app.layout = html.Div(
             0.5, 2, step=0.25, value=1.25, id="svg-renderer-scale-factor-slider"
         ),
         # Scale factor should not do anything here as renderer is not svg
-        dvc.Vega(id="altair-chart", opt={"actions": False}, svgRendererScaleFactor=2),
+        dvc.Vega(
+            id="altair-chart",
+            opt={"actions": False},
+            svgRendererScaleFactor=2,
+            className="some-class",
+            style={"width": "100%"},
+        ),
         # Here it should work
         dvc.Vega(
             id="altair-chart-scaled",
@@ -52,8 +58,11 @@ def display_altair_chart(origin, svgRendererScaleFactor):
             tooltip=["Name", "Origin", "Horsepower", "Miles_per_Gallon"],
         )
     )
-    spec = chart.to_dict()
-    return spec, spec, svgRendererScaleFactor
+    return (
+        chart.properties(width="container").to_dict(),
+        chart.to_dict(),
+        svgRendererScaleFactor,
+    )
 
 
 @callback(Output("vega-lite-chart", "spec"), Input("header1", "children"))
