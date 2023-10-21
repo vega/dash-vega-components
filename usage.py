@@ -3,10 +3,14 @@ import json
 import textwrap
 
 import altair as alt
-from dash import Dash, Input, Output, callback, dcc, html
-from vega_datasets import data
+import pandas as pd
+from dash import Dash, Input, Output, callback, dash_table, dcc, html
 
 import dash_vega_components as dvc
+
+source = pd.read_json(
+    "https://raw.githubusercontent.com/vega/vega-datasets/main/data/cars.json"
+)
 
 app = Dash(
     __name__, external_stylesheets=["https://codepen.io/chriddyp/pen/bWLwgP.css"]
@@ -24,11 +28,11 @@ app.layout = html.Div(
                         dcc.Markdown(
                             textwrap.dedent(
                                 """\
+                            ### Interactive example
                             You can pass any [Vega-Altair](https://altair-viz.github.io/) chart to `dash_vega_components.Vega` by
                             converting it to a dictionary using `chart.to_dict()`. You
-                            can use the interactivity of Altair itself or update other
-                            components on the page using callbacks which can read out
-                            the current state of the chart.
+                            can use the interactivity features of Altair itself to for example update the histogram based on the selection in the scatter chart. You can also update other
+                            components on the page using callbacks and the `signalData` property of the `Vega` component.
                             """
                             )
                         ),
@@ -42,7 +46,6 @@ app.layout = html.Div(
                             id="altair-chart",
                             signalsToObserve=[
                                 "circle_size",
-                                "legend_origin",
                                 "brush_selection",
                             ],
                         ),
@@ -51,16 +54,25 @@ app.layout = html.Div(
                                 """\
                             You can read out any parameter/signal of a chart. Try the following and observe how the dictionary below changes:
 
-                            * change the 'Circle size' above
-                            * click on an entry in the legend
-                            * select a region in the chart (the numbers you see below are the lower and upper bounds of the selection)
+                            * Change the 'Circle size' above
+                            * Select a region in the chart. The numbers you see below are the lower and upper bounds of the selection and you can use them for example to filter a dataframe.
                             """
                             )
                         ),
                         html.Div(id="altair-params"),
+                        dash_table.DataTable(
+                            id="table",
+                            columns=[{"name": i, "id": i} for i in source.columns],
+                            page_action="native",
+                            page_size=10,
+                        ),
                         dcc.Markdown(
-                            "You can pass various options for the rendering. For example, you can change the renderer to SVG and scale the chart keeping the original proportions",
-                            style={"marginTop": "40px"},
+                            textwrap.dedent(
+                                """\
+                            ### Rendering options
+                            The rendering of the charts can be configured using the options of the underlying [vegaEmbed](https://github.com/vega/vega-embed#options) package. For example, you can change the renderer to SVG and hide the dropdown in the top right corner of a chart. In addition to these options, the `Vega` component allows you to scale the chart keeping the proportions of the chart elements.
+                            """
+                            ),
                         ),
                         html.Div(
                             dcc.Slider(
@@ -78,7 +90,11 @@ app.layout = html.Div(
                             svgRendererScaleFactor=1.3,
                         ),
                         dcc.Markdown(
-                            "Make the chart responsive by setting `width='container'` on the Altair chart and `style={'width': '100%'}` on the `Vega` component. Resize your window to see the effect. Notice that you can also read out the width of the chart if you want.",
+                            textwrap.dedent(
+                                """\
+                            Make the chart responsive by setting `width='container'` on the Altair chart and `style={'width': '100%'}` on the `Vega` component. Resize your window to see the effect. Notice that you can also read out the width of the chart if you want.
+                            """
+                            ),
                             style={"marginTop": "20px"},
                         ),
                         html.Div(
@@ -88,7 +104,6 @@ app.layout = html.Div(
                                 signalsToObserve=[
                                     "width",
                                     "circle_size",
-                                    "legend_origin",
                                 ],
                             ),
                         ),
@@ -150,6 +165,23 @@ def display_altair_chart_1(origin):
 
 
 @callback(
+    Output("table", "data"),
+    Input("altair-chart", "signalData"),
+    prevent_initial_call=True,
+)
+def update_datatable(signal_data):
+    brush_selection = signal_data.get("brush_selection", {})
+    if brush_selection:
+        filter = " and ".join(
+            [f"{v[0]} <= `{k}` <= {v[1]}" for k, v in brush_selection.items()]
+        )
+        filtered_source = source.query(filter)
+    else:
+        filtered_source = source
+    return filtered_source.to_dict("records")
+
+
+@callback(
     Output("altair-chart-scaled", "spec"),
     Output("altair-chart-scaled", "svgRendererScaleFactor"),
     Input("svg-renderer-scale-factor-slider", "value"),
@@ -172,14 +204,9 @@ def display_altair_chart_3(_):
 
 
 def make_chart(origin: str, add_circle_size_slider: bool, add_histogram: bool = False):
-    source = data.cars()
-
+    data = source.copy()
     if origin != "All":
-        source = source[source["Origin"] == origin]
-
-    legend_origin = alt.selection_point(
-        fields=["Origin"], bind="legend", name="legend_origin"
-    )
+        data = data[data["Origin"] == origin]
 
     if add_circle_size_slider:
         circle_size = alt.param(
@@ -190,17 +217,16 @@ def make_chart(origin: str, add_circle_size_slider: bool, add_histogram: bool = 
     else:
         circle_size = alt.Undefined
 
+    color_scale = alt.Color("Origin").scale(domain=["Europe", "Japan", "USA"])
     chart = (
-        alt.Chart(source)
+        alt.Chart(data)
         .mark_circle(size=circle_size)
         .encode(
             x="Horsepower",
             y="Miles_per_Gallon",
-            color=alt.Color("Origin").scale(domain=["Europe", "Japan", "USA"]),
+            color=color_scale,
             tooltip=["Name", "Origin", "Horsepower", "Miles_per_Gallon"],
-            opacity=alt.condition(legend_origin, alt.value(0.8), alt.value(0.2)),
         )
-        .add_params(legend_origin)
     )
     if add_circle_size_slider:
         chart = chart.add_params(circle_size)
@@ -209,9 +235,9 @@ def make_chart(origin: str, add_circle_size_slider: bool, add_histogram: bool = 
         brush = alt.selection_interval(name="brush_selection")
         chart = chart.add_params(brush)
         bars = (
-            alt.Chart(source)
+            alt.Chart(data)
             .mark_bar()
-            .encode(y="Origin:N", color="Origin:N", x="count(Origin):Q")
+            .encode(y="Origin:N", color=color_scale, x="count(Origin):Q")
             .transform_filter(brush)
         )
         chart = chart & bars
