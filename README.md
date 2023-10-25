@@ -64,6 +64,8 @@ if __name__ == "__main__":
 
 You can also pass a Vega or Vega-Lite specification as a dictionary.
 
+For more examples, including how to trigger callbacks based on a user's interaction with the chart, run the example app which you can find in [`example_app.py`](./example_app.py) and study the docstring of the `Vega` component in [`Vega.py`](./dash_vega_components/Vega.py).
+
 
 ## Development
 Requires npm
@@ -76,7 +78,7 @@ pip install -r requirements-dev.txt
 npm install
 npm run build
 # Test package with
-python usage.py
+python example_app.py
 ```
 Visit http://localhost:8050 in your web browser
 

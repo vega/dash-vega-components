@@ -27,7 +27,8 @@
     "uuid": "^9.0.1",
     "vega": "^5.25.0",
     "vega-lite": "^5.16.1",
-    "vega-embed": "^6.23.0"
+    "vega-embed": "^6.23.0",
+    "lodash.debounce": "^4.0.8"
   },
   "devDependencies": {
     "@babel/core": "^7.22.1",

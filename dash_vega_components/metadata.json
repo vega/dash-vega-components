@@ -30,7 +30,36 @@
           "name": "number"
         },
         "required": false,
-        "description": "A number which is used to scale the chart in case the svg renderer is used.\nThis is useful when you want to increase the size of the chart keeping\nthe relative proportions of all chart elements to each other the same.\nDefault value is 1."
+        "description": "A number which is used to scale the chart in case the svg renderer is used.\nThis is useful when you want to increase the size of the chart keeping\nthe relative proportions of all chart elements to each other the same.\nDefault value is 1.",
+        "defaultValue": {
+          "value": "1",
+          "computed": false
+        }
+      },
+      "signalsToObserve": {
+        "type": {
+          "name": "arrayOf",
+          "value": {
+            "name": "string"
+          }
+        },
+        "required": false,
+        "description": "A list of signal names to observe for changes. If you use Altair, these are the\nnames of the parameters you define. The values of these signals\nwill be available in the signalData property. You can pass [\"all\"] to\nobserve all signals.\nDefaults to no signals.",
+        "defaultValue": {
+          "value": "[]",
+          "computed": false
+        }
+      },
+      "signalData": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "A read-only dictionary of signals with the key being the name of the signal.\nThe easiest way to make sense of it is to display the whole signalData dictionary\nin your app layout or print it to the console\nso that you see what the structure looks like.",
+        "defaultValue": {
+          "value": "{}",
+          "computed": false
+        }
       },
       "style": {
         "type": {
@@ -45,6 +74,17 @@
         },
         "required": false,
         "description": "Additional className of the Vega div"
+      },
+      "debounceWait": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Debouncing wait time in milliseconds before signals property is updated\nDefault value is 10.",
+        "defaultValue": {
+          "value": "10",
+          "computed": false
+        }
       },
       "setProps": {
         "type": {

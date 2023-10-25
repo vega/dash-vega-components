@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
 import vegaEmbed, { EmbedOptions } from 'vega-embed';
 import * as d3 from 'd3';
+import * as debounce from 'lodash.debounce';
 
 
 export default class Vega extends Component {
@@ -27,10 +28,15 @@ export default class Vega extends Component {
             JSON.stringify(this.props.opt) !== JSON.stringify(prevProps.opt) ||
             JSON.stringify(this.props.spec) !== JSON.stringify(prevProps.spec) ||
             JSON.stringify(this.props.style) !== JSON.stringify(prevProps.style) ||
+            JSON.stringify(this.props.signalsToObserve) !== JSON.stringify(prevProps.signalsToObserve) ||
             this.props.className !== prevProps.className
         ) {
             this.update();
         }
+    }
+
+    cleanJson(data) {
+        return JSON.parse(JSON.stringify(data))
     }
 
     update() {
@@ -42,7 +48,53 @@ export default class Vega extends Component {
 
         vegaEmbed(this.el, this.props.spec, this.props.opt).then((result) => {
             this.finalize = result.finalize;
-            this.vega_view = result.view;
+            this.vegaView = result.view;
+            let vegaSignals = this.vegaView.getState().signals || {};
+            // Ignore the 'unit' signal as it's rather complex,
+            // contains references which can't be serialized to JSON, and it's
+            // not useful to most users in the Dash context
+            if ('unit' in vegaSignals) {
+                delete vegaSignals.unit;
+            };
+            // Only add signals to the props if they are in the signalsToObserve
+            // list or if the list is equal to ['all'].
+            // If the list is empty, no signals will be added to the props.
+            let filteredSignals = {};
+            if (this.props.signalsToObserve[0] === 'all') {
+                filteredSignals = vegaSignals;
+            } else {
+                for (let signal in vegaSignals) {
+                    if (this.props.signalsToObserve.includes(signal)) {
+                        filteredSignals[signal] = vegaSignals[signal];
+                    }
+                }
+            }
+            vegaSignals = filteredSignals;
+
+            // Initially, set all signals so that the evaluated values are available
+            // even if they never change. Else, the code below would only add
+            // signals to the props if they change.
+            this.props.setProps({ signalData: vegaSignals });
+
+            const wait = this.props.debounceWait;
+            const maxWait = wait;
+
+            // Register signal listeners to update the props when signals change.
+            const signalHandler = (name, value) => {
+                // Not sure if this is needed but it's in the Jupyterchart
+                // implementation in Vega-Altair. Worth to be
+                // on the safe side for now.
+                const cleanedValue = this.cleanJson(value);
+                // Get a shallow copy of the signals. Shallow should be enough
+                // as we overwrite the top level values anyway.
+                let signalData = { ...this.props.signalData };
+                signalData[name] = cleanedValue;
+                this.props.setProps({ signalData: signalData });
+            };
+            for (let signal in vegaSignals) {
+                this.vegaView.addSignalListener(signal, debounce(signalHandler, wait, { maxWait: maxWait }));
+            }
+
             const options = this.props.opt || {};
             const renderer = options.renderer || 'canvas';
             if (renderer === 'svg' && this.props.svgRendererScaleFactor !== 1) {
@@ -62,7 +114,7 @@ export default class Vega extends Component {
     }
 }
 
-Vega.defaultProps = { svgRendererScaleFactor: 1 };
+Vega.defaultProps = { svgRendererScaleFactor: 1, signalsToObserve: [], signalData: {}, debounceWait: 10 };
 
 Vega.propTypes = {
     /**
@@ -89,6 +141,23 @@ Vega.propTypes = {
     svgRendererScaleFactor: PropTypes.number,
 
     /**
+     * A list of signal names to observe for changes. If you use Altair, these are the
+     * names of the parameters you define. The values of these signals
+     * will be available in the signalData property. You can pass ["all"] to
+     * observe all signals.
+     * Defaults to no signals.
+     */
+    signalsToObserve: PropTypes.arrayOf(PropTypes.string),
+
+    /**
+     * A read-only dictionary of signals with the key being the name of the signal.
+     * The easiest way to make sense of it is to display the whole signalData dictionary
+     * in your app layout or print it to the console
+     * so that you see what the structure looks like.
+     */
+    signalData: PropTypes.object,
+
+    /**
      * Generic style overrides on the Vega div
      */
     style: PropTypes.object,
@@ -97,6 +166,12 @@ Vega.propTypes = {
      * Additional className of the Vega div
      */
     className: PropTypes.string,
+
+    /**
+     * Debouncing wait time in milliseconds before signals property is updated
+     * Default value is 10.
+     */
+    debounceWait: PropTypes.number,
 
     /**
      * Dash-assigned callback that should be called to report property changes
