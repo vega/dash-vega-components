@@ -175,9 +175,10 @@ def display_altair_chart_1(origin):
 @callback(
     Output("table", "data"),
     Input("altair-chart", "signalData"),
+    Input("origin-dropdown", "value"),
     prevent_initial_call=True,
 )
-def update_datatable(signal_data):
+def update_datatable(signal_data, origin):
     brush_selection = signal_data.get("brush_selection", {})
     if brush_selection:
         filter = " and ".join(
@@ -186,6 +187,8 @@ def update_datatable(signal_data):
         filtered_source = source.query(filter)
     else:
         filtered_source = source
+    if origin != "All":
+        filtered_source = filtered_source[filtered_source["Origin"] == origin]
     return filtered_source.to_dict("records")
 
 
