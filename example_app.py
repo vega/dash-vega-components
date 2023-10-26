@@ -4,9 +4,17 @@ import textwrap
 
 import altair as alt
 import pandas as pd
+import requests
 from dash import Dash, Input, Output, callback, dash_table, dcc, html
 
 import dash_vega_components as dvc
+
+# Setting up a custom theme is not required for Altair.
+theme = requests.get(
+    "https://gist.githubusercontent.com/binste/b4042fa76a89d72d45cbbb9355ec6906/raw/e36f79d722bcd9dd954389b1753a2d4a18113227/altair_theme.json"
+).json()
+alt.themes.register("custom", lambda: theme)
+alt.themes.enable("custom")
 
 source = pd.read_json(
     "https://raw.githubusercontent.com/vega/vega-datasets/main/data/cars.json"
