@@ -67,7 +67,7 @@ app.layout = html.Div(
                             """
                             )
                         ),
-                        html.Div(id="altair-params"),
+                        dcc.Markdown(id="altair-params"),
                         dash_table.DataTable(
                             id="table",
                             columns=[{"name": i, "id": i} for i in source.columns],
@@ -100,7 +100,7 @@ app.layout = html.Div(
                         dcc.Markdown(
                             textwrap.dedent(
                                 """\
-                            Make the chart responsive by setting `width='container'` on the Altair chart and `style={'width': '100%'}` on the `Vega` component. Resize your window to see the effect. Notice that you can also read out the width of the chart if you want.
+                            Make the chart responsive by setting `width='container'` on the Altair chart and `style={'width': '100%'}` on the `Vega` component. Resize your window to see the effect.
                             """
                             ),
                             style={"marginTop": "20px"},
@@ -109,13 +109,13 @@ app.layout = html.Div(
                             dvc.Vega(
                                 id="altair-chart-width",
                                 style={"width": "100%"},
-                                signalsToObserve=[
-                                    "width",
-                                    "circle_size",
-                                ],
+                                signalsToObserve=["all"],
                             ),
                         ),
-                        html.Div("No value so far", id="altair-width-params"),
+                        dcc.Markdown(
+                            """Notice that you can also read out the width of the chart as well as many other things. To get an overview of all signals that can be observed, pass `["all"]` to `signalsToObserve`:"""
+                        ),
+                        dcc.Markdown(id="altair-width-params"),
                     ],
                 ),
                 dcc.Tab(
@@ -151,7 +151,7 @@ app.layout = html.Div(
     prevent_initial_call=True,
 )
 def display_altair_params(params):
-    return json.dumps(params, indent=2)
+    return format_json(params)
 
 
 @callback(
@@ -160,7 +160,11 @@ def display_altair_params(params):
     prevent_initial_call=True,
 )
 def display_altair_width_params(params):
-    return json.dumps(params)
+    return format_json(params)
+
+
+def format_json(json_data):
+    return "```json\n" + json.dumps(json_data, indent=2) + "\n```"
 
 
 @callback(
