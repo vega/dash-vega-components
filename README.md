@@ -1,5 +1,5 @@
 # Dash Vega Components
-With the `Vega` component, you can display [Vega-Altair](https://altair-viz.github.io/) charts in your [Plotly Dash](https://dash.plotly.com/) application. It also supports Vega-Lite and Vega specifications.
+With the `Vega` component, you can display [Vega-Altair](https://altair-viz.github.io/) charts in your [Plotly Dash](https://dash.plotly.com/) application. All features work as well with Vega-Lite and Vega specifications but the remainder of this README will focus on Altair as it is more common.
 
 
 ```bash
@@ -64,8 +64,26 @@ if __name__ == "__main__":
 
 You can also pass a Vega or Vega-Lite specification as a dictionary.
 
-For more examples, including how to trigger callbacks based on a user's interaction with the chart, run the example app which you can find in [`example_app.py`](./example_app.py) and study the docstring of the `Vega` component in [`Vega.py`](./dash_vega_components/Vega.py).
+## Callbacks
+*Parameters* are the basic building blocks to make an Altair chart interactive. They can either be simple variables or more complex selections that map user input (e.g., mouse clicks and drags) to data queries. In Vega, these are called *Signals* and the two concepts of *Signals* and *Parameters* are closely linked. As an Altair user, you don't have to know the details and you can think of them as synonyms.
 
+You can trigger a Dash callback based on changes in any parameter which is defined in an Altair chart. To do this, you'll need to
+* specify a `name` when defining the parameter, for example `alt.param(name="my_param")` or `alt.selection_point(name="my_param")`
+* add the parameter name to the `signalsToObserve` property of the `Vega` component: `dvc.Vega(id="chart1", signalsToObserve=["my_param])`. If you want to observe all signals, you can also pass `signalsToObserve=["all"]`
+* use `Input("chart1", "signalData")` in your callback to access the value of `"my_param"` and react to changes
+
+You can see a full example in [`example_app.py`](./example_app.py), including how to filter a pandas dataframe based on a selection in a chart.
+
+Some ideas of what you could do with this:
+* Filter a Dash data table based on the selected points in a scatter plot (see [`example_app.py`](./example_app.py))
+* Based on a clickable bar chart, update other charts in your application
+* If you have geographic data, show an overview map of aggregated regional data. Use this map as a navigation element in a dash multi-page app so that if a user clicks on e.g. the US, they get to the US specific subpage
+* ...
+
+## Further information
+For more infos on the properites of the `Vega` component, see its docstring in [`Vega.py`](./dash_vega_components/Vega.py).
+
+To learn more about making Altair charts interactive, see [Interactive Charts - Vega-Altair docs](https://altair-viz.github.io/user_guide/interactions.html).
 
 ## Development
 Requires npm
