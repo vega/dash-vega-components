@@ -1,7 +1,7 @@
 build
 wheel
 twine
-black
+ruff>=0.1.4
 
 # For testing
 dash[dev,testing]>=1.15.0
