@@ -44,6 +44,9 @@
 11. Update version to e.g. 0.3.0dev in `package.json` in new branch
 
         git switch -c maint_0.3.0dev
+        # Change version
+        npm install
+        npm run build
 
 12. Commit change and push:
 
