@@ -72,7 +72,7 @@ You can trigger a Dash callback based on changes in any parameter which is defin
 * add the parameter name to the `signalsToObserve` property of the `Vega` component: `dvc.Vega(id="chart1", signalsToObserve=["my_param])`. If you want to observe all signals, you can also pass `signalsToObserve=["all"]`
 * use `Input("chart1", "signalData")` in your callback to access the value of `"my_param"` and react to changes
 
-For more examples, see [`example_app.py`](./example_app.py) which shows how to filter a pandas dataframe based on a selection in a chart, or head over to https://github.com/altair-viz/dash-vega-components/issues/5.
+For more examples, see [`example_app.py`](./example_app.py) which shows how to filter a pandas dataframe based on a selection in a chart and display it in a Dash data table (the same would work with the Dash AG Grid component), or head over to https://github.com/altair-viz/dash-vega-components/issues/5.
 
 Some ideas of what you could do with this:
 * Filter a Dash data table based on the selected points in a scatter plot (see [`example_app.py`](./example_app.py))
