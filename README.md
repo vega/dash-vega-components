@@ -85,6 +85,8 @@ For more infos on the properites of the `Vega` component, see its docstring in [
 
 To learn more about making Altair charts interactive, see [Interactive Charts - Vega-Altair docs](https://altair-viz.github.io/user_guide/interactions.html).
 
+If you want your chart to resize responsively, set `container="width"` in your Altair chart and `style={'width': '100%'}` on the `Vega` component (see [`example_app.py`](./example_app.py)).
+
 ## Development
 Requires npm
 ```bash
