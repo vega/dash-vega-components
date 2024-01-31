@@ -1,5 +1,7 @@
 # Dash Vega Components
-With the `Vega` component, you can display [Vega-Altair](https://altair-viz.github.io/) charts in your [Plotly Dash](https://dash.plotly.com/) application. All features work as well with Vega-Lite and Vega specifications but the remainder of this README will focus on Altair as it is more common.
+With the `Vega` component, you can display [Vega-Altair](https://altair-viz.github.io/) charts in your [Plotly Dash](https://dash.plotly.com/dash-vega-components) application. All features work as well with Vega-Lite and Vega specifications but the remainder of this README will focus on Altair as it is more common.
+
+You can either go through the examples below or head over to [the Plotly Dash documentation](https://dash.plotly.com/dash-vega-components) to learn more.
 
 
 ```bash
