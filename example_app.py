@@ -100,7 +100,7 @@ app.layout = html.Div(
                         dcc.Markdown(
                             textwrap.dedent(
                                 """\
-                            Make the chart responsive by setting `width='container'` on the Altair chart and `style={'width': '100%'}` on the `Vega` component. Resize your window to see the effect.
+                            Make the chart responsive by setting `width='container'` on the Altair chart. Resize your window to see the effect.
                             """
                             ),
                             style={"marginTop": "20px"},
@@ -108,7 +108,6 @@ app.layout = html.Div(
                         html.Div(
                             dvc.Vega(
                                 id="altair-chart-width",
-                                style={"width": "100%"},
                                 signalsToObserve=["all"],
                             ),
                         ),
