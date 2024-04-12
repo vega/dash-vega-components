@@ -110,7 +110,11 @@ export default class Vega extends Component {
     }
 
     render() {
-        return <div id={this.divId} ref={this.getRef} className={this.props.className} style={this.props.style} />;
+        // Somehow got read-only errors when trying to modify this.props.style here,
+        // in update, or in the constructor so let's just copy the style property.
+        let style = JSON.parse(JSON.stringify(this.props.style || {}));
+        style.width = style.width || '100%';
+        return <div id={this.divId} ref={this.getRef} className={this.props.className} style={style} />;
     }
 }
 
